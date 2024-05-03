@@ -3,7 +3,6 @@ import { View, Text, Button, Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { HomeScreen } from "./pages/Home";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   Appbar,
@@ -15,16 +14,12 @@ import {
 } from "react-native-paper";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
-  require("@expo/metro-runtime"); // #23104 (comment)
+  require("@expo/metro-runtime");
 }
 
 const theme = {
   ...DefaultTheme,
 };
-
-if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
-  require("@expo/metro-runtime"); // #23104 (comment)
-}
 
 const Stack = createNativeStackNavigator();
 
