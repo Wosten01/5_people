@@ -30,7 +30,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.text} variant="displayLarge">
+      <Text style={styles.text} variant="displayMedium">
         НАЦИОНАЛЬНЫЙ
       </Text>
       <Text style={styles.text} variant="displayMedium">
