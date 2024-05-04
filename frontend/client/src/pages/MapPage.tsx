@@ -10,15 +10,13 @@ export default function MapPage() {
   const [marker, setMarker] = useState(null);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Map">
-          {(props) => <Map {...props} setMarker={setMarker} />}
-        </Stack.Screen>
-        <Stack.Screen name="PickerInfo">
-          {(props) => <PickerInfo {...props} marker={marker} />}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Map">
+        {(props) => <Map {...props} setMarker={setMarker} />}
+      </Stack.Screen>
+      <Stack.Screen name="PickerInfo">
+        {(props) => <PickerInfo {...props} marker={marker} />}
+      </Stack.Screen>
+    </Stack.Navigator>
   );
 }
