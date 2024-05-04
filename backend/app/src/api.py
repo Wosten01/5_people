@@ -85,6 +85,17 @@ async def create_user(user: UserSchema = Body(...)):
             "(fio, password, rank, email) "
             "VALUES (%s, %s, %s, %s)",
             (fio, hashed_password, 0, email),
+        )        
+        cursor.execute(
+            "SELECT id FROM users WHERE email = %s",
+            (email, )
+        )
+        user_id = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO achievements "
+            "(reports, completes, user_id) "
+            "VALUES (%s, %s, %s)",
+            (0, 0, user_id),
         )
         return {"message": "User registered successfully",
                 "username": fio}, 201
@@ -281,7 +292,17 @@ async def profile(id: int) -> dict:
                 "email": row[1],
                 "rank": row[2],
             }   
-    response = {"data": user_data}
+        cursor.execute(
+            "SELECT reports, completes FROM achievements WHERE user_id = %s",
+            (id, )
+        )
+        for row in cursor.fetchall():
+            achievements = {
+                "reports": row[0],
+                "completes": row[1],
+            }  
+    response = {"data": user_data, 
+                "achievements" : achievements}
     return response
     
 @app.get("/map", tags=["user"],  response_class=HTMLResponse)
