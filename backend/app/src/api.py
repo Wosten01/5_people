@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 
-from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema, ModerConfirm, Area
+from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema, ModerConfirm, Area, ModerCancel
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import signJWT
 from connection_config import connection_params
@@ -396,13 +396,13 @@ async def history(id: int):
     response = {"data": user_data}
     return response
 
-@app.post("/cancel_report", tags=["user"])
-async def cancel_report(report_id: int):
+@app.post("/cancel_report", tags=["moder"])
+async def cancel_report(data: ModerCancel):
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE requests SET status = 4 WHERE id = %s",
-            (report_id,)
+            (data.report_id,)
         )
     content = {"message": "Status changed"}
     return content 
