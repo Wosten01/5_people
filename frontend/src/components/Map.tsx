@@ -4,20 +4,26 @@ import WebView from "react-native-webview";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 
-export function Map() {
+interface MapProps {
+  setMarker: any;
+  navigation: any;
+}
+
+export function Map({ setMarker, navigation }: MapProps) {
   const [swtch, setSwitch] = useState(false);
 
   return (
-      <WebView
-        style={styles.view}
-        source={{
-          html: genHTML(),
-        }}
-        onMessage={(e) => {
-          alert(e.nativeEvent.data);
-        }}
-        injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
-      />
+    <WebView
+      style={styles.view}
+      source={{
+        html: genHTML(),
+      }}
+      onMessage={(e) => {
+        setMarker(e.nativeEvent.data);
+        navigation.navigate("PickerInfo");
+      }}
+      injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
+    />
   );
 }
 
