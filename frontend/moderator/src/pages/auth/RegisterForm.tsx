@@ -17,7 +17,7 @@ export function RegisterForm() {
       email: email,
       password: password,
     });
-    window.location.href = "/register";
+    window.location.href = "/login";
   };
 
   return (
@@ -76,14 +76,13 @@ export function RegisterForm() {
             <Button
               onClick={() => (window.location.href = "/login")}
               variant="link"
+              size="sm"
             >
               Уже зеленый? Заходи!
             </Button>
             <button
               type="submit"
-              className=" rounded-xl bg-green-500 px-3 py-2 font-normal tracking-wide w-full  text-white"
-
-              // className=" rounded-xl bg-rose-200 px-3 py-2 font-light tracking-wide w-full m-2"
+              className=" rounded-xl bg-gray-800   px-3 py-2 font-normal tracking-wide w-full  text-white"
             >
               Register
             </button>

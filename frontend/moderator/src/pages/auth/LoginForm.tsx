@@ -76,14 +76,13 @@ function LoginForm() {
             <Button
               onClick={() => (window.location.href = "/register")}
               variant="link"
-              // className="p-2 "
               size="sm"
             >
               Ещё не с нами? Давно пора!
             </Button>
             <button
               type="submit"
-              className=" rounded-xl bg-green-500 px-3 py-2 font-normal tracking-wide w-full  text-white"
+              className=" rounded-xl bg-gray-800 px-3 py-2 font-normal tracking-wide w-full  text-white"
             >
               Login
             </button>
