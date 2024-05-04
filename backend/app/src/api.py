@@ -19,6 +19,7 @@ import shutil
 import os
 import copy 
 import folium
+from math import log10
 
 posts = [
     {
@@ -38,6 +39,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 @app.get("/", tags=["root"])
@@ -85,6 +87,17 @@ async def create_user(user: UserSchema = Body(...)):
             "(fio, password, rank, email) "
             "VALUES (%s, %s, %s, %s)",
             (fio, hashed_password, 0, email),
+        )        
+        cursor.execute(
+            "SELECT id FROM users WHERE email = %s",
+            (email, )
+        )
+        user_id = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO achievements "
+            "(reports, completes, user_id) "
+            "VALUES (%s, %s, %s)",
+            (0, 0, user_id),
         )
         return {"message": "User registered successfully",
                 "username": fio}, 201
@@ -281,7 +294,17 @@ async def profile(id: int) -> dict:
                 "email": row[1],
                 "rank": row[2],
             }   
-    response = {"data": user_data}
+        cursor.execute(
+            "SELECT reports, completes FROM achievements WHERE user_id = %s",
+            (id, )
+        )
+        for row in cursor.fetchall():
+            achievements = {
+                "reports": log10(int(row[0]) + 0.01),
+                "completes": log10(int(row[1]) + 0.01),
+            }  
+    response = {"data": user_data, 
+                "achievements" : achievements}
     return response
     
 @app.get("/map", tags=["user"],  response_class=HTMLResponse)
@@ -317,3 +340,38 @@ async def get_area(latitude: float, longitude: float):
     
     response = {"area": area}
     return response
+
+@app.get("/top", tags=["user"])
+async def top():
+    top_users = []
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT fio, rank FROM users ORDER BY rank DESC LIMIT 10;")
+        for row in cursor.fetchall():
+            user_data = {
+                "fio": row[0],
+                "rank": row[1]
+            }
+            top_users.append(user_data)
+    
+    return {"top_users": top_users}
+
+@app.get("/rank", tags=["user"])
+async def rank(id: int):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            WITH ranked_users AS (
+                SELECT id, rank,
+                       ROW_NUMBER() OVER (ORDER BY rank DESC) AS position
+                FROM users
+            )
+            SELECT position
+            FROM ranked_users
+            WHERE id = %s;
+        """, (id,))
+        
+        position = cursor.fetchone()  # Получаем результат запроса
+        if position:
+            return {"position": position[0]}  # Возвращаем позицию пользователя
+       
