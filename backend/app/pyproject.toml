@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "5people"
+version = "0.1.0"
+description = ""
+authors = [""]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uvicorn = "^0.29.0"
+pyjwt = "^2.8.0"
+pydantic = "^2.7.1"
+fastapi = "^0.111.0"
+psycopg2-binary = "^2.9.9"
+folium = "^0.16.0"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+black = "^24.2.0"
+pre-commit = "^3.6.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
