@@ -1,7 +1,6 @@
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { useAuth } from "../pages/auth/AuthContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Trash } from "react-bootstrap-icons";
 
 function NavigationMenu() {

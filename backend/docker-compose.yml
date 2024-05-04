@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   database:
@@ -7,9 +7,10 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: trash
+      POSTGRES_DB: postgres
+
     ports:
-      - "5432:5432"
+      - "5431:5431"
     volumes:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./database/pgdata:/var/lib/postgresql/data
@@ -18,13 +19,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      
-  app:
-    build: 
-      context: ./app
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      database:
-        condition: service_healthy 

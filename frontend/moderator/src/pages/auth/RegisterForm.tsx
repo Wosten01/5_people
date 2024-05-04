@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { API } from "../../api/api";
 import { Button } from "react-bootstrap";
+import { registerUser } from "../../api/api";
 
 export function RegisterForm() {
-  const api = API.getInstance();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
@@ -14,7 +13,7 @@ export function RegisterForm() {
     console.log("Password:", password);
 
     try {
-      const response = await api.register({
+      const response = await registerUser({
         fullname: fullname,
         email: email,
         password: password,
