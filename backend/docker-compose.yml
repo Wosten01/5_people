@@ -19,13 +19,13 @@ services:
       timeout: 5s
       retries: 5
       
-  app:
-    build: 
-      context: ./app
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    depends_on:
-      database:
-        condition: service_healthy 
+  # app:
+  #   build: 
+  #     context: ./app
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy 
 
