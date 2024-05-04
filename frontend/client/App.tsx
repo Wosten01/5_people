@@ -3,11 +3,12 @@ import { Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 
 import { DefaultTheme, PaperProvider } from "react-native-paper";
-import { HomeScreen } from "./src/pages/Home";
 
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
 import MapPage from "./src/pages/MapPage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MapPicker } from "./src/components/MapPicker";
+import HomePage from "./src/pages/HomePage";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
@@ -25,8 +26,8 @@ function App() {
           <Tab.Navigator>
             <Tab.Screen
               options={{ tabBarIcon: "home" }}
-              name="Home"
-              component={HomeScreen}
+              name="HomePage"
+              component={HomePage}
             />
             <Tab.Screen
               options={{ tabBarIcon: "map" }}

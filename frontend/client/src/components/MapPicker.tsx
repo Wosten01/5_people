@@ -11,19 +11,28 @@ interface MapProps {
 }
 
 export function MapPicker({ coords, setCoords, navigation }: MapProps) {
+  const [lcoords, lsetCoords] = useState(coords);
+
   return (
     <>
       <WebView
         style={styles.view}
         source={{
-          html: genHTML(),
+          html: genHTML(coords),
         }}
         onMessage={(e) => {
-          setCoords(JSON.parse(e.nativeEvent.data));
+          lsetCoords(JSON.parse(e.nativeEvent.data));
         }}
         injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
       />
-      <FAB style={styles.button} icon="plus" />
+      <FAB
+        style={styles.button}
+        icon="plus"
+        onPress={() => {
+          setCoords(lcoords);
+          navigation.goBack();
+        }}
+      />
       <Text variant="bodyLarge" style={styles.text}>
         {JSON.stringify(coords)}
       </Text>
@@ -31,8 +40,7 @@ export function MapPicker({ coords, setCoords, navigation }: MapProps) {
   );
 }
 
-function genHTML() {
-  const location = [52, 52];
+function genHTML(location: any) {
   const html = `<!DOCTYPE html>
     <html>
       <head>
@@ -67,13 +75,13 @@ function genHTML() {
       <body>
         <div id="map"></div>
         <script>
-          var map = L.map("map").setView([${location[0]}, ${location[1]}], 15);
+          var map = L.map("map").setView([${location.lat}, ${location.lng}], 15);
           L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             attribution:
               '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           }).addTo(map);
-          var marker = L.marker([52, 52], {draggable: true}).addTo(map);
+          var marker = L.marker([${location.lat}, ${location.lng}], {draggable: true}).addTo(map);
           marker.on('dragend', function (e) {
             window.ReactNativeWebView.postMessage(JSON.stringify(e.target.getLatLng()));
           })
