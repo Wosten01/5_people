@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { API } from "../../api/api";
+import { Button } from "react-bootstrap";
 
 export function RegisterForm() {
   const api = API.getInstance();
@@ -71,10 +72,16 @@ export function RegisterForm() {
             </div>
           </div>
 
-          <div className="flex justify-center ">
+          <div className="flex justify-center flex-col">
+            <Button
+              onClick={() => (window.location.href = "/login")}
+              variant="link"
+            >
+              Уже зеленый? Заходи!
+            </Button>
             <button
               type="submit"
-              className=" rounded-xl bg-green-500 px-3 py-2 font-light tracking-wide w-full m-2 text-white"
+              className=" rounded-xl bg-green-500 px-3 py-2 font-normal tracking-wide w-full  text-white"
 
               // className=" rounded-xl bg-rose-200 px-3 py-2 font-light tracking-wide w-full m-2"
             >

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { API } from "../../api/api";
+import { Button } from "react-bootstrap";
 
 function LoginForm() {
   const api = API.getInstance();
@@ -20,12 +21,12 @@ function LoginForm() {
 
   return (
     <div className=" min-h-screen flex bg-gray-200  justify-center items-center">
-      <div className=" bg-white px-8 sm:px-16 py-16 rounded-xl">
-        <form onSubmit={handleSubmit} className="space-y-8 ">
+      <div className=" bg-white px-8 sm:px-16 p-16 rounded-xl">
+        <form onSubmit={handleSubmit} className="space-y-7 ">
           <h2 className=" text-center text-4xl tracking-wider uppercase">
             Login
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className=" space-y-6">
               <div className="flex flex-col gap-1">
                 <label className=" font-light tracking-wide" htmlFor="username">
@@ -71,10 +72,18 @@ function LoginForm() {
             </div>
           </div>
 
-          <div className="flex justify-center ">
+          <div className="flex justify-center flex-col">
+            <Button
+              onClick={() => (window.location.href = "/register")}
+              variant="link"
+              // className="p-2 "
+              size="sm"
+            >
+              Ещё не с нами? Давно пора!
+            </Button>
             <button
               type="submit"
-              className=" rounded-xl bg-green-500 px-3 py-2 font-light tracking-wide w-full m-2 text-white"
+              className=" rounded-xl bg-green-500 px-3 py-2 font-normal tracking-wide w-full  text-white"
             >
               Login
             </button>

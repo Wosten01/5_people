@@ -8,9 +8,11 @@ function NavigationMenu() {
   console.log(isAuthenticated);
 
   return (
-    <Navbar bg="dark" expand="lg" variant="dark">
+    <Navbar bg="dark" expand="lg" variant="dark" className="tracking-widest ">
       <div className="container">
-        <Navbar.Brand>Национальный мусорный проект</Navbar.Brand>
+        <Navbar.Brand className=" font-medium tracking-widest " href="/">
+          Национальный мусорный проект
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarNav" />
         <Navbar.Collapse id="navbarNav">
           <Nav className="ml-auto">
