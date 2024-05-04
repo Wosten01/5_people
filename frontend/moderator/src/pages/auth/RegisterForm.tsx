@@ -12,12 +12,23 @@ export function RegisterForm() {
     event.preventDefault();
     console.log("Email:", email);
     console.log("Password:", password);
-    await api.register({
-      fullname: fullname,
-      email: email,
-      password: password,
-    });
-    window.location.href = "/login";
+
+    try {
+      const response = await api.register({
+        fullname: fullname,
+        email: email,
+        password: password,
+      });
+      if (response.status === 200) {
+        window.location.href = "/login";
+      } else {
+        alert("Data not valid");
+        console.log("Data not valid");
+      }
+    } catch (error) {
+      alert("Error");
+      console.log(`Failed to login: ${error}`);
+    }
   };
 
   return (

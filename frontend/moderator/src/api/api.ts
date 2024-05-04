@@ -7,7 +7,7 @@ const instance = (timeout = DEFAULT_TIMEOUT) => {
   const requestId = uuidv4();
   console.log(`Create instance with request_id ${requestId}`);
 
-  const url: string = process.env.REACT_APP_SUPERVISOR_URL!;
+  const url: string = process.env.REACT_APP_BACKEND_API!;
   return axios.create({
     baseURL: url,
     timeout: timeout,
@@ -41,4 +41,18 @@ export class API {
   }) {
     return await instance().post(`/user/signup`, data);
   }
+
+  public async fetchData() {
+    return await instance().post(`/moder/pickers`);
+  }
+  // public async changeStatus(data: {
+  //   fullname: string;
+  //   email: string;
+  //   password: string;
+  // }) {
+  //   return await instance().post(`/user/signup`, data);
+  // }
+  // public async(data: { fullname: string; email: string; password: string }) {
+  //   return await instance().post(`/user/signup`, data);
+  // }
 }

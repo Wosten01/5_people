@@ -66,3 +66,28 @@ class ReportSchema(BaseModel):
                 "user_id": 1
             }
         }
+
+class ModerConfirm(BaseModel):
+    report_id: int = Form(...)
+    value: int = Form(...)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "report_id": 1,
+                "value": 1
+            }
+        }
+        
+        
+class Area(BaseModel):
+    latitude: float = Form(...)
+    longitude: float = Form(...)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "latitude": 1,
+                "longitude": 1
+            }
+        }
