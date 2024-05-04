@@ -2,24 +2,32 @@ import * as React from "react";
 import { useState } from "react";
 import WebView from "react-native-webview";
 import { StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { FAB, Text } from "react-native-paper";
 
 interface MapProps {
   navigation: any;
+  coords: { lat: number; lng: number };
+  setCoords: any;
 }
 
-export function MapPicker({ navigation }: MapProps) {
+export function MapPicker({ coords, setCoords, navigation }: MapProps) {
   return (
-    <WebView
-      style={styles.view}
-      source={{
-        html: genHTML(),
-      }}
-      onMessage={(e) => {
-        navigation.goBack();
-      }}
-      injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
-    />
+    <>
+      <WebView
+        style={styles.view}
+        source={{
+          html: genHTML(),
+        }}
+        onMessage={(e) => {
+          setCoords(JSON.parse(e.nativeEvent.data));
+        }}
+        injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
+      />
+      <FAB style={styles.button} icon="plus" />
+      <Text variant="bodyLarge" style={styles.text}>
+        {JSON.stringify(coords)}
+      </Text>
+    </>
   );
 }
 
@@ -65,7 +73,10 @@ function genHTML() {
             attribution:
               '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           }).addTo(map);
-          var marker = L.marker([51.5, -0.09]).addTo(map);
+          var marker = L.marker([52, 52], {draggable: true}).addTo(map);
+          marker.on('dragend', function (e) {
+            window.ReactNativeWebView.postMessage(JSON.stringify(e.target.getLatLng()));
+          })
         </script>
       </body>
     </html>
@@ -76,5 +87,17 @@ function genHTML() {
 export const styles = StyleSheet.create({
   view: {
     flex: 1,
+  },
+  text: {
+    position: "absolute",
+    margin: 16,
+    top: 0,
+    right: 0,
+  },
+  button: {
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });
