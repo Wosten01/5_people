@@ -46,33 +46,6 @@ app.add_middleware(
 async def read_root() -> dict:
     return {"message": "Welcome to your blog!"}
 
-
-@app.get("/posts", tags=["posts"])
-async def get_posts() -> dict:
-    return { "data": posts }
-
-
-@app.get("/posts/{id}", tags=["posts"])
-async def get_single_post(id: int) -> dict:
-    if id > len(posts):
-        return {
-            "error": "No such post with the supplied ID."
-        }
-
-    for post in posts:
-        if post["id"] == id:
-            return {
-                "data": post
-            }
-
-
-@app.post("/posts", dependencies=[Depends(JWTBearer())], tags=["posts"])
-async def add_post(post: PostSchema) -> dict:
-    post.id = len(posts) + 1
-    posts.append(post.dict())
-    return {
-        "data": "post added."
-    }
     
 @app.post("/user/signup", tags=["user"])
 async def create_user(user: UserSchema = Body(...)):
@@ -225,6 +198,14 @@ async def close_report(report_id: int, cleaner_id: int):
             "UPDATE users SET rank = rank + %s WHERE id = %s",
             (value, cleaner_id, )
         )
+        cursor.execute(
+            "UPDATE achievements SET reports = reports + 1 WHERE id = %s",
+            (user_id, )
+        )
+        cursor.execute(
+            "UPDATE achievements SET completes = completes + 1 WHERE id = %s",
+            (cleaner_id, )
+        )
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -371,7 +352,22 @@ async def rank(id: int):
             WHERE id = %s;
         """, (id,))
         
-        position = cursor.fetchone()  # Получаем результат запроса
+        position = cursor.fetchone()
         if position:
-            return {"position": position[0]}  # Возвращаем позицию пользователя
+            return {"position": position[0]}
        
+@app.get("/history", tags=["user"])
+async def history(id: int):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT reports, completes FROM achievements WHERE id = %s",
+            (id, )
+        )
+        for row in cursor.fetchall():
+            user_data = {
+                "reports": row[0],
+                "completes": row[1],
+            }   
+    response = {"data": user_data}
+    return response
