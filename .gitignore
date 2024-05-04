@@ -37,5 +37,5 @@ yarn-error.*
 
 pgdata
 __pycache__
-
+uploads
 .env
