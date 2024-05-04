@@ -9,6 +9,7 @@ import MapPage from "./src/pages/MapPage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MapPicker } from "./src/components/MapPicker";
 import HomePage from "./src/pages/HomePage";
+import Reports from "./src/pages/Reports";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
@@ -33,6 +34,11 @@ function App() {
               options={{ tabBarIcon: "map" }}
               name="MapPage"
               component={MapPage}
+            />
+            <Tab.Screen
+              options={{ tabBarIcon: "book-account" }}
+              name="ReportPage"
+              component={Reports}
             />
           </Tab.Navigator>
         </NavigationContainer>
