@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import FastAPI, Body, Depends, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 
 from app.model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema
 from app.auth.auth_bearer import JWTBearer
@@ -137,9 +138,9 @@ async def report(img: UploadFile = File(...), text = Form(...), geo = Form(...),
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO requests "
-            "(text, geo, img, status, user_id) "
-            "VALUES (%s, %s, %s, %s, %s)",
-            (text, geo, hash_img, 0, int(user_id)),
+            "(text, geo, img, status, user_id, value) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (text, geo, hash_img, 0, int(user_id), 0),
         )
         return {"message": "Report registered successfully"}, 201
     
@@ -149,18 +150,18 @@ async def get_single_report(id: int) -> dict:
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id FROM requests WHERE id = %s",
+            "SELECT text, geo, img, status, user_id, value FROM requests WHERE id = %s",
             (str(id), )
         )
         picker_list = []
         for row in cursor.fetchall():
             report_data = {
-                "id": row[0],
-                "text": row[1],
-                "geo": row[2],
-                "img": row[3],
-                "status": row[4],
-                "user_id": row[5]
+                "text": row[0],
+                "geo": row[1],
+                "img": row[2],
+                "status": row[3],
+                "user_id": row[4],
+                "value": row[5]
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
@@ -180,18 +181,36 @@ async def change_status(report_id: int, status: int):
             content =  {"message": f"No report found with id {report_id}"}, 404
     return content 
 
-@app.post("/close_report", tags=["moder"])
-async def close_report(report_id: int):
+@app.post("/confirm_report", tags=["moder"])
+async def confirm_report(report_id: int, value: int):
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT user_id FROM requests WHERE id = %s",
+            "UPDATE requests SET status = %s, value = %s WHERE id = %s",
+            (1, value, report_id,)
+        )
+    content = {"message": "Status changed"}
+    return content 
+
+
+@app.post("/close_report", tags=["moder"])
+async def close_report(report_id: int, cleaner_id: int):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT user_id, value FROM requests WHERE id = %s",
             (str(report_id), )
         )
-        user_id = cursor.fetchone()[0]
+        for row in cursor.fetchall():
+            user_id = row[0]
+            value = row[1]
         cursor.execute(
-            "UPDATE users SET rank = rank + 1 WHERE id = %s",
-            (user_id, )
+            "UPDATE users SET rank = rank + %s WHERE id = %s",
+            (value, user_id, )
+        )
+        cursor.execute(
+            "UPDATE users SET rank = rank + %s WHERE id = %s",
+            (value, cleaner_id, )
         )
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
@@ -231,7 +250,7 @@ async def moder_pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id FROM requests WHERE status = 0 OR status = 2"
+            "SELECT id, text, geo, img, status, user_id, value FROM requests WHERE status = 0 OR status = 2"
         )
         picker_list = []
         for row in cursor.fetchall():
@@ -241,7 +260,8 @@ async def moder_pickers():
                 "geo": row[2],
                 "img": row[3],
                 "status": row[4],
-                "user_id": row[5]
+                "user_id": row[5],
+                "value": row[6]
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
@@ -264,11 +284,13 @@ async def profile(id: int) -> dict:
     response = {"data": user_data}
     return response
     
-@app.get("/map", tags=["user"])
+@app.get("/map", tags=["user"],  response_class=HTMLResponse)
 async def get_map(latitude: float, longitude: float):
-    m = folium.Map(location=[latitude, longitude], zoom_start=15)
+    m = folium.Map(location=[latitude, longitude], zoom_start=5)
     
     folium.Marker([latitude, longitude], popup='Report Marker').add_to(m)
+    print(latitude, longitude)
+    folium.Marker([latitude+0.0_01, longitude+0.0_01], popup='Report Marker').add_to(m)
     
     m.save("map.html")
     
@@ -276,3 +298,22 @@ async def get_map(latitude: float, longitude: float):
         map_html = f.read()
     
     return {"map_html": map_html}
+
+@app.get("/area", tags=["user"])
+async def get_area(latitude: float, longitude: float):
+    area = []
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, geo FROM requests CROSS JOIN (SELECT %s AS target_x, %s AS target_y) AS target_coords CROSS JOIN LATERAL (SELECT geo_split[1]::float AS x, geo_split[2]::float AS y FROM regexp_split_to_array(geo, ' ') AS geo_split) AS parsed_coords WHERE ABS(parsed_coords.x - target_coords.target_x) <= 1 AND ABS(parsed_coords.y - target_coords.target_y) <= 1;",
+                       (latitude, longitude,)
+        )
+    for row in cursor.fetchall():
+        geo = row[1].split(' ')
+        area.append ({
+            "id": row[0],
+            "x": geo[0],
+            "y": geo[1],
+        })
+    
+    response = {"area": area}
+    return response

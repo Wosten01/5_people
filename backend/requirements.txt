@@ -1,4 +1,6 @@
 fastapi
 uvicorn
-pydantic
+pydantic[email]
 jwt
+folium
+psycopg2

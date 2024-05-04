@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Platform } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -7,6 +7,7 @@ import { DefaultTheme, PaperProvider } from "react-native-paper";
 import { DetailsScreen } from "./src/pages/Detail";
 import { HomeScreen } from "./src/pages/Home";
 import { Reports } from "./src/pages/Reports";
+
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
