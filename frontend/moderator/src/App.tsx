@@ -1,24 +1,26 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-
-import ModerationPanel from "./src/components/ModerationPanel";
-import About from "./src/pages/About";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import NavigationMenu from "./components/NavMenu";
+import { AuthProvider } from "./pages/auth/AuthContext";
 import Main from "./pages/Main";
-import LoginForm from "./src/pages/auth/LoginForm";
-import { RegisterForm } from "./src/pages/auth/RegisterForm";
+import { RegisterForm } from "./pages/auth/RegisterForm";
+import LoginForm from "./pages/auth/LoginForm";
+import ModerationPanel from "./pages/ModerationPanel";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Main></Main>}>
-          <Route index element={<ModerationPanel />} />
-          <Route path="about" element={<About />} />
-          <Route path="login" element={<LoginForm />} />
-          <Route path="register" element={<RegisterForm />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <Router>
+        <NavigationMenu />
+        <Routes>
+          <Route path="/" Component={Main} />
+          <Route path="/register" Component={RegisterForm} />
+          <Route path="/login" Component={LoginForm} />
+          <Route path="/panel" Component={ModerationPanel} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

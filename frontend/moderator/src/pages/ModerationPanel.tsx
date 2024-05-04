@@ -7,7 +7,9 @@ import {
   Modal,
   Alert,
 } from "react-bootstrap";
-import { MODERATION_DATA } from "../../data_samples/moderation_panel";
+import { MODERATION_DATA } from "../data_samples/moderation_panel";
+import { useAuth } from "./auth/AuthContext";
+import { Link } from "react-router-dom";
 
 interface Data {
   id: number;
@@ -31,6 +33,8 @@ function ModerationPanel() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const { isAuthenticated } = useAuth();
+
   const statusOptions = [
     "Confirmation of contamination",
     "Confirmed of contamination",
@@ -39,6 +43,10 @@ function ModerationPanel() {
   ];
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
     setTimeout(() => {
       setData(MODERATION_DATA);
       setLoading(false);
@@ -68,6 +76,29 @@ function ModerationPanel() {
     setItemsPerPage(value);
     setCurrentPage(1);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex justify-center mt-8 flex-col items-center ">
+        <h3>Кажется, самое время авторизоваться!</h3>
+        <div>
+          <Link
+            // className="px-6 py-3 bg-gray-500 text-white rounded-lg text-lg font-semibold hover:bg-gray-600"
+            to={"/register"}
+          >
+            <Button variant="link">Регистрация</Button>
+          </Link>
+          /
+          <Link
+            // className=" bg-gray-500 text-white rounded-lg text-lg font-semibold hover:bg-gray-600"
+            to={"/login"}
+          >
+            <Button variant="link">Войти</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
