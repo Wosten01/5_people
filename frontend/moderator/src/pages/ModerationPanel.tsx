@@ -10,6 +10,7 @@ import {
 import { MODERATION_DATA } from "../data_samples/moderation_panel";
 import { useAuth } from "./auth/AuthContext";
 import { Link } from "react-router-dom";
+import { API } from "../api/api";
 
 interface Data {
   id: number;
@@ -31,6 +32,7 @@ function ModerationPanel() {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
+  const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -43,25 +45,32 @@ function ModerationPanel() {
     "Done",
   ];
 
+  const fetchData = async () => {
+    try {
+      const response = await API.getInstance().fetchData();
+      if (response.status === 200) {
+        setData(response.data);
+      } else {
+        console.log("Failed to fetch data");
+      }
+    } catch (error) {
+      console.log(`Failed to fetch data: ${error}`);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       return;
     }
-
-    setTimeout(() => {
-      setData(MODERATION_DATA);
-      setLoading(false);
-    }, 2000);
+    fetchData();
   }, []);
 
   useEffect(() => {
     if (data) {
-      // Apply filter if filterStatus is not null
       if (filterStatus !== null) {
         const filtered = data.filter((item) => item.status === filterStatus);
         setFilteredData(filtered);
       } else {
-        // If no filter is applied, use the original data
         setFilteredData(data);
       }
     }
