@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Modal, Pressable, ScrollView, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import ImagePickerComponent from "../components/ImagePicker";
 import { StyleSheet } from "react-native";
-import CommentSection from "../components/CommentSection";
 
 interface HomeScreenProps {
   navigation: any;
+  coords: {
+    lat: number;
+    lng: number;
+  };
 }
 
-export function HomeScreen({ navigation }: HomeScreenProps) {
+export function HomeScreen({ coords, navigation }: HomeScreenProps) {
   const [image, setImage] = useState<string>();
   const [comment, setComment] = useState<string>("qhdsjshd");
   const [modalVisible, setModalVisible] = useState(false);
@@ -31,7 +34,12 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <ImagePickerComponent image={image} set={setImage} />
-      <CommentSection set={setComment} />
+      {/* <CommentSection set={setComment} /> */}
+
+      <Button onPress={() => navigation.navigate("MapPicker")}>
+        {JSON.stringify(coords)}
+      </Button>
+
       {image != undefined && comment != "" ? (
         <Button mode="outlined" onPress={() => accept()} style={styles.button}>
           Отправить

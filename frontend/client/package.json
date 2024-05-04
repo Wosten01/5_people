@@ -25,7 +25,8 @@
     "react-native-screens": "~3.29.0",
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.6.4",
-    "react-router-native": "^6.23.0"
+    "react-router-native": "^6.23.0",
+    "expo-location": "~16.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
