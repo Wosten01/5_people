@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import FastAPI, Body, Depends, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 
 from app.model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema
 from app.auth.auth_bearer import JWTBearer
@@ -283,7 +284,7 @@ async def profile(id: int) -> dict:
     response = {"data": user_data}
     return response
     
-@app.get("/map", tags=["user"])
+@app.get("/map", tags=["user"],  response_class=HTMLResponse)
 async def get_map(latitude: float, longitude: float):
     m = folium.Map(location=[latitude, longitude], zoom_start=5)
     
