@@ -1,6 +1,0 @@
-fastapi
-uvicorn
-pydantic[email]
-jwt
-folium
-psycopg2

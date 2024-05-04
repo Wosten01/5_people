@@ -1,4 +1,4 @@
-# app/api.py
+# src/api.py
 
 from typing import Annotated
 
@@ -7,10 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 
-from app.model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema
-from app.auth.auth_bearer import JWTBearer
-from app.auth.auth_handler import signJWT
-from app.connection_config import connection_params
+from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema
+from auth.auth_bearer import JWTBearer
+from auth.auth_handler import signJWT
+from connection_config import connection_params
 
 import psycopg2
 import psycopg2.extras
