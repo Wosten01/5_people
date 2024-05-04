@@ -7,16 +7,18 @@ import { Text } from "react-native-paper";
 interface MapProps {
   setMarker: any;
   navigation: any;
+  markers: any;
+  coord: any;
 }
 
-export function Map({ setMarker, navigation }: MapProps) {
+export function Map({ markers, setMarker, navigation, coord }: MapProps) {
   const [swtch, setSwitch] = useState(false);
 
   return (
     <WebView
       style={styles.view}
       source={{
-        html: genHTML(),
+        html: genHTML(coord, markers),
       }}
       onMessage={(e) => {
         setMarker(e.nativeEvent.data);
@@ -27,17 +29,11 @@ export function Map({ setMarker, navigation }: MapProps) {
   );
 }
 
-function genHTML() {
-  const location = [52, 52];
-  const positions = [
-    { x: 52, y: 52, id: 2 },
-    { x: 52.002, y: 52, id: 1 },
-    { x: 52, y: 52.002, id: 4 },
-  ];
-
-  const markers_html = positions
-    .map((p) => {
-      return `var marker = L.marker([${p.x}, ${p.y}]).addTo(map);
+function genHTML(coord: { lat: number; lng: number }, markers: any) {
+  const markers_html = markers
+    .map((p: any) => {
+      let [ x, y ] = p.geo.split(" ");
+      return `var marker = L.marker([${x}, ${y}]).addTo(map);
      marker.getElement().onclick = () => {
       window.ReactNativeWebView.postMessage(${p.id});
     };`;
@@ -78,7 +74,7 @@ function genHTML() {
       <body>
         <div id="map"></div>
         <script>
-          var map = L.map("map").setView([${location[0]}, ${location[1]}], 15);
+          var map = L.map("map").setView([${coord.lat}, ${coord.lng}], 15);
           L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             maxZoom: 19,
             attribution:

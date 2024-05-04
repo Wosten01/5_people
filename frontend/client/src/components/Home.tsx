@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Modal, Pressable, ScrollView, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import ImagePickerComponent from "../components/ImagePicker";
 import { StyleSheet } from "react-native";
-import CommentSection from "../components/CommentSection";
+import { API } from "../api";
 
 interface HomeScreenProps {
   navigation: any;
+  coords: {
+    lat: number;
+    lng: number;
+  };
 }
 
-export function HomeScreen({ navigation }: HomeScreenProps) {
+export function HomeScreen({ coords, navigation }: HomeScreenProps) {
   const [image, setImage] = useState<string>();
   const [comment, setComment] = useState<string>("qhdsjshd");
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,13 +29,24 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const sendReport = () => {
     console.log(image);
     console.log(comment);
+    API.getInstance().send_report({
+      img: image!,
+      text: comment,
+      geo: `${coords.lat} ${coords.lng}`,
+      user_id: "1",
+    });
     return;
   };
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <ImagePickerComponent image={image} set={setImage} />
-      <CommentSection set={setComment} />
+      {/* <CommentSection set={setComment} /> */}
+
+      <Button onPress={() => navigation.navigate("MapPicker")}>
+        {JSON.stringify(coords)}
+      </Button>
+
       {image != undefined && comment != "" ? (
         <Button mode="outlined" onPress={() => accept()} style={styles.button}>
           Отправить
@@ -55,21 +70,25 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
               <Text style={styles.modalText}>
                 Уверены что хотите отправить данные?
               </Text>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => {
-                  sendReport();
-                  setModalVisible(!modalVisible);
-                }}
-              >
-                <Text style={styles.textStyle}>Подтвердить</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>Отменить</Text>
-              </Pressable>
+              <View style={styles.confirm_view}>
+                <Button
+                  style={styles.button_confirm}
+                  mode="contained"
+                  onPress={() => {
+                    sendReport();
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  Подтвердить
+                </Button>
+                <Button
+                  style={styles.button_confirm}
+                  mode="contained"
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  Отменить
+                </Button>
+              </View>
             </View>
           </View>
         </Modal>
@@ -129,5 +148,14 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center",
+  },
+  confirm_view: {
+    flex: 1,
+    flexDirection: "row",
+    maxHeight: 60,
+  },
+  button_confirm: {
+    maxHeight: 50,
+    margin: 3,
   },
 });
