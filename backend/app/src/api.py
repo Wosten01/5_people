@@ -2,16 +2,17 @@
 
 from typing import Annotated
 
-from fastapi import FastAPI, Body, Depends, File, UploadFile, Form
+from fastapi import FastAPI, Body, Depends, File, UploadFile, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 
-from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema
+from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema, ModerConfirm, Area
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import signJWT
 from connection_config import connection_params
 
+import base64
 import psycopg2
 import psycopg2.extras
 import hashlib
@@ -99,9 +100,9 @@ async def user_login(user: UserLoginSchema = Body(...)):
         "error": "Wrong login details!"
     }
 
-@app.post("/report", dependencies=[Depends(JWTBearer())], tags=["user"])
+@app.post("/report", tags=["user"])
+# @app.post("/report", dependencies=[Depends(JWTBearer())], tags=["user"])
 async def report(img: UploadFile = File(...), text = Form(...), geo = Form(...), user_id = Form(...)):
-    print("YES")
     upload_folder = "uploads"
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
@@ -164,14 +165,15 @@ async def change_status(report_id: int, status: int):
     return content 
 
 @app.post("/confirm_report", tags=["moder"])
-async def confirm_report(report_id: int, value: int):
+async def confirm_report(data: ModerConfirm):
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE requests SET status = %s, value = %s WHERE id = %s",
-            (1, value, report_id,)
+            (1, data.value, data.report_id,)
         )
     content = {"message": "Status changed"}
+    
     return content 
 
 
@@ -211,44 +213,72 @@ async def close_report(report_id: int, cleaner_id: int):
     content = {"message": "Status changed"}
     return content 
 
-
-@app.post("/user/pickers", tags=["user"])
-async def user_pickers(id: int):
+@app.get("/pickers", tags=["user"])
+async def user_pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id FROM requests WHERE user_id = %s",
-            (str(id))
+            "SELECT id, text, geo, img, status, value FROM requests WHERE status = 1"
         )
         picker_list = []
         for row in cursor.fetchall():
+            with open("uploads/" + row[3], "rb") as file:
+                image_data = file.read()
+                image_base64 = base64.b64encode(image_data).decode("utf-8")
             report_data = {
                 "id": row[0],
                 "text": row[1],
                 "geo": row[2],
-                "img": row[3],
                 "status": row[4],
-                "user_id": row[5]
+                "value": row[5],
+                # "img" : image_base64
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
     return response
 
+@app.get("/user/pickers", tags=["user"])
+async def user_pickers(id: int):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, text, geo, img, status, value FROM requests WHERE user_id = %s",
+            (id, )
+        )
+        picker_list = []
+        for row in cursor.fetchall():
+            with open("uploads/" + row[3], "rb") as file:
+                image_data = file.read()
+                image_base64 = base64.b64encode(image_data).decode("utf-8")
+            report_data = {
+                "id": row[0],
+                "text": row[1],
+                "geo": row[2],
+                "status": row[4],
+                "value": row[5],
+                "img" : image_base64
+            }
+            picker_list.append(report_data)    
+    response = {"data": picker_list}
+    return response
 
 @app.post("/moder/pickers", tags=["moder"])
 async def moder_pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id, value FROM requests WHERE status = 0 OR status = 2"
+            "SELECT id, text, geo, img, status, user_id, value FROM requests"
         )
         picker_list = []
         for row in cursor.fetchall():
+            with open("uploads/" + row[3], "rb") as file:
+                image_data = file.read()
+                image_base64 = base64.b64encode(image_data).decode("utf-8")
             report_data = {
                 "id": row[0],
                 "text": row[1],
                 "geo": row[2],
-                "img": row[3],
+                "img": image_base64,
                 "status": row[4],
                 "user_id": row[5],
                 "value": row[6]
@@ -285,12 +315,10 @@ async def profile(id: int) -> dict:
     return response
     
 @app.get("/map", tags=["user"],  response_class=HTMLResponse)
-async def get_map(latitude: float, longitude: float):
-    m = folium.Map(location=[latitude, longitude], zoom_start=5)
+async def get_map(data: Area):
+    m = folium.Map(location=[data.latitude, data.longitude], zoom_start=5)
     
-    folium.Marker([latitude, longitude], popup='Report Marker').add_to(m)
-    print(latitude, longitude)
-    folium.Marker([latitude+0.0_01, longitude+0.0_01], popup='Report Marker').add_to(m)
+    folium.Marker([data.latitude, data.longitude], popup='Report Marker').add_to(m)
     
     m.save("map.html")
     
@@ -300,12 +328,12 @@ async def get_map(latitude: float, longitude: float):
     return {"map_html": map_html}
 
 @app.get("/area", tags=["user"])
-async def get_area(latitude: float, longitude: float):
+async def get_area(data: Area):
     area = []
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT id, geo FROM requests CROSS JOIN (SELECT %s AS target_x, %s AS target_y) AS target_coords CROSS JOIN LATERAL (SELECT geo_split[1]::float AS x, geo_split[2]::float AS y FROM regexp_split_to_array(geo, ' ') AS geo_split) AS parsed_coords WHERE ABS(parsed_coords.x - target_coords.target_x) <= 1 AND ABS(parsed_coords.y - target_coords.target_y) <= 1;",
-                       (latitude, longitude,)
+                       (data.latitude, data.longitude,)
         )
     for row in cursor.fetchall():
         geo = row[1].split(' ')
@@ -367,3 +395,34 @@ async def history(id: int):
             }   
     response = {"data": user_data}
     return response
+
+@app.post("/cancel_report", tags=["user"])
+async def cancel_report(report_id: int):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE requests SET status = 4 WHERE id = %s",
+            (report_id,)
+        )
+    content = {"message": "Status changed"}
+    return content 
+
+@app.get("/image", tags=["user"])
+async def get_image(img: str):
+    with open("uploads/" + img, "rb") as file:
+        image_data = file.read()
+
+    return Response(content=image_data, media_type="image/jpeg")
+
+@app.post("/user_confirm", tags=["user"])
+async def confirm_report(report_id: int):
+    
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE requests SET status = %s WHERE id = %s",
+            (2, report_id,)
+        )
+    content = {"message": "Status changed"}
+    
+    return content 
