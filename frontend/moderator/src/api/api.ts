@@ -40,9 +40,6 @@ export const confirmReport = async (data: {
   return await instance().post(`/confirm_report`, data);
 };
 
-export const cancelReport = async (data: {
-  report_id: number;
-  value: number;
-}) => {
-  return await instance().post(`/close_report`, data);
+export const cancelReport = async (data: { report_id: number }) => {
+  return await instance().post(`/cancel_report`, data);
 };

@@ -114,7 +114,7 @@ function ModerationPanel() {
     return (
       <div className=" flex justify-center items-center h-screen">
         <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
+          <span className="sr-only">Подгружаем...</span>
         </Spinner>
       </div>
     );
@@ -157,10 +157,10 @@ function ModerationPanel() {
         setData((prevData) =>
           prevData!.filter((item) => item.id !== selectedRequestId)
         );
-        setSuccessMessage("Request approved successfully.");
+        setSuccessMessage("Запрос успешно подтвердён.");
       }
     } catch (error) {
-      setErrorMessage("Failed to approve request.");
+      setErrorMessage("Не удалось подтвердить запрос :(");
     } finally {
       setShowModal(false);
     }
@@ -174,16 +174,15 @@ function ModerationPanel() {
     try {
       const response = await cancelReport({
         report_id: selectedRequestId!,
-        value: selectedValue,
       });
       if (response.status == 200) {
         setData((prevData) =>
           prevData!.filter((item) => item.id !== selectedRequestId)
         );
-        setSuccessMessage("Request rejected successfully.");
+        setSuccessMessage("Запрос успешно отменён!.");
       }
     } catch (error) {
-      setErrorMessage("Failed to reject request.");
+      setErrorMessage("Не удалось отменить запрос.....Извините....");
     } finally {
       setShowModal(false);
     }
@@ -260,11 +259,11 @@ function ModerationPanel() {
         <Table striped bordered hover>
           <thead className="  text-center">
             <tr>
-              <th>Status</th>
-              <th>Coordinates</th>
-              <th>Comment</th>
-              <th>Photo</th>
-              <th>Action</th>
+              <th>Статус</th>
+              <th>Координаты</th>
+              <th>Комментарий</th>
+              <th>Фото</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody className="  text-center">
@@ -273,7 +272,7 @@ function ModerationPanel() {
                 <td>
                   {item.status >= 0 && item.status < statusOptions.length
                     ? statusOptions[item.status]
-                    : "Done"}
+                    : "Успешно выполнили!"}
                 </td>
                 <td>{item.geo}</td>
                 <td>{item.text}</td>
@@ -294,12 +293,12 @@ function ModerationPanel() {
                 </td>
                 <td className="align-middle">
                   {item.status === 0 || item.status === 2
-                    ? "Waiting for confirming"
+                    ? "Ждёт подтверждения"
                     : item.status === 1
-                    ? "Waiting for cleaning"
+                    ? "Ждёт уборки"
                     : item.status === 3
-                    ? ""
-                    : "Work done!"}
+                    ? "Дело сделано!"
+                    : "Дело сделано!"}
                 </td>
               </tr>
             ))}
@@ -321,7 +320,7 @@ function ModerationPanel() {
       </div>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Request Details</Modal.Title>
+          <Modal.Title>Детали запроса</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="flex flex-col gap-3 justify-center ">

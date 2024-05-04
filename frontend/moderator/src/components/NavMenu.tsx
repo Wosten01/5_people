@@ -29,7 +29,7 @@ function NavigationMenu() {
           <Nav className="ml-auto">
             <Nav.Item>
               <Link className="nav-link" to="/panel">
-                Moderation Panel
+                Панель модератора
               </Link>
             </Nav.Item>
             {!isAuthenticated ? (
