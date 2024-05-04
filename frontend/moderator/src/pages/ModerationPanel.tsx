@@ -69,7 +69,7 @@ function ModerationPanel() {
     }
     fetchData();
     setLoading(false);
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (data) {
