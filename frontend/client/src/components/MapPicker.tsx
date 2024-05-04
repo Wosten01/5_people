@@ -27,15 +27,12 @@ export function MapPicker({ coords, setCoords, navigation }: MapProps) {
       />
       <FAB
         style={styles.button}
-        icon="plus"
+        icon="check"
         onPress={() => {
           setCoords(lcoords);
           navigation.goBack();
         }}
       />
-      <Text variant="bodyLarge" style={styles.text}>
-        {JSON.stringify(coords)}
-      </Text>
     </>
   );
 }

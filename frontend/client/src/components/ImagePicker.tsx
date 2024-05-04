@@ -13,7 +13,6 @@ export default function ImagePickerComponent({ image, set }: ImageProps) {
   // const [image, setImage] = useState<string>();
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       // allowsEditing: true,
