@@ -1,13 +1,13 @@
 import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { DefaultTheme, PaperProvider } from "react-native-paper";
-import { DetailsScreen } from "./src/pages/Detail";
 import { HomeScreen } from "./src/pages/Home";
-import { Reports } from "./src/pages/Reports";
 
+import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
+import MapPage from "./src/pages/MapPage";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
@@ -15,26 +15,35 @@ if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
 const theme = {
   ...DefaultTheme,
 };
-
-const Stack = createNativeStackNavigator();
+const Tab = createMaterialBottomTabNavigator();
 
 function App() {
   return (
-    <PaperProvider theme={theme}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Report" options={{ title: "Main" }}>
-            {(props) => <Reports {...props} />}
-            {/* {(props) => <HomeScreen {...props} />} */}
-          </Stack.Screen>
-          {/* <Stack.Screen name="Home" options={{ title: "Main" }}>
-            {(props) => <HomeScreen {...props} />}
-          </Stack.Screen> */}
-          <Stack.Screen name="Details" component={DetailsScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <SafeAreaView style={styles.view}>
+      <PaperProvider theme={theme}>
+        <NavigationContainer>
+          <Tab.Navigator>
+            <Tab.Screen
+              options={{ tabBarIcon: "home" }}
+              name="Home"
+              component={HomeScreen}
+            />
+            <Tab.Screen
+              options={{ tabBarIcon: "map" }}
+              name="MapPage"
+              component={MapPage}
+            />
+          </Tab.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  view: {
+    flex: 1,
+  },
+});
 
 export default App;

@@ -36,3 +36,4 @@ yarn-error.*
 *.tsbuildinfo
 
 pgdata
+__pycache__
