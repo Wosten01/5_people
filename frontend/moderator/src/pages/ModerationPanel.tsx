@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 
 interface Data {
   id: number;
+  comment: string;
   status: number;
   coordinates: string;
   photo: string;
@@ -242,6 +243,7 @@ function ModerationPanel() {
               <tr key={item.id} className="">
                 <td>{statusOptions[item.status]}</td>
                 <td>{item.coordinates}</td>
+                <td>{item.comment}</td>
                 <td className="align-middle">
                   <Button
                     variant="link"

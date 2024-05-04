@@ -5,7 +5,7 @@ export const shuffle = (array: any) => {
   return array.sort(() => Math.random() - 0.5);
 };
 
-export const MODERATION_DATA = shuffle([
+export const REPORTS_DATA = shuffle([
   {
     id: 1,
     status: 0,

@@ -11,7 +11,7 @@ interface HomeScreenProps {
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const [image, setImage] = useState<string>();
-  const [comment, setComment] = useState<string>("");
+  const [comment, setComment] = useState<string>("qhdsjshd");
   const [modalVisible, setModalVisible] = useState(false);
 
   const accept = () => {
@@ -30,15 +30,6 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.text} variant="displayMedium">
-        НАЦИОНАЛЬНЫЙ
-      </Text>
-      <Text style={styles.text} variant="displayMedium">
-        МУСОРНЫЙ
-      </Text>
-      <Text style={styles.text} variant="displaySmall">
-        ПРОЕКТ
-      </Text>
       <ImagePickerComponent image={image} set={setImage} />
       <CommentSection set={setComment} />
       {image != undefined && comment != "" ? (
