@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "./AuthContext";
-import { API } from "../../api/api";
 import { Button } from "react-bootstrap";
+import { loginUser } from "../../api/api";
 
 function LoginForm() {
-  const api = API.getInstance();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -14,9 +13,22 @@ function LoginForm() {
     event.preventDefault();
     console.log("Username:", email);
     console.log("Password:", password);
-    // await api.login({ email: email, password: password });
-    login();
-    window.location.href = "/";
+    try {
+      const response = await loginUser({
+        email: email,
+        password: password,
+      });
+      if (response.status === 200) {
+        login();
+        window.location.href = "/";
+      } else {
+        alert("Data not valid");
+        console.log("Data not valid");
+      }
+    } catch (error) {
+      alert("Error");
+      console.log(`Failed to login: ${error}`);
+    }
   };
 
   return (

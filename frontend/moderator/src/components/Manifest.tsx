@@ -26,10 +26,10 @@ const ManifestComponent: React.FC = () => {
   return (
     <div className=" min-h-screen py-8 w-8/12 sm:w-6/12 mx-auto">
       <div className="container mx-auto px-4 ">
-        <h1 className="text-4xl  font-bold mb-8 uppercase tracking-widest text-center">
-          <p> Манифест</p>
-          <h1 className="--tracking-widest">Национального Мусорного Проекта</h1>
-        </h1>
+        <div className="text-4xl  font-bold mb-8 uppercase tracking-widest text-center">
+          <h1> Манифест</h1>
+          <h2 className="--tracking-widest">Национального Мусорного Проекта</h2>
+        </div>
         <ManifestArticle manifestItems={MANIFESTO} />
       </div>
     </div>

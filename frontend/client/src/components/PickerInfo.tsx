@@ -1,5 +1,8 @@
 import { Button, Text, FAB } from "react-native-paper";
 import { StyleSheet, View, Image } from "react-native";
+import { useState } from "react";
+import { API } from "../api";
+import React from "react";
 
 interface PickerInfoProps {
   marker: string | null;
@@ -7,15 +10,35 @@ interface PickerInfoProps {
 }
 
 export default function PickerInfo({ marker, navigation }: PickerInfoProps) {
-  const data = {
-    text: "WHEN IMPOSTER IS SUS",
-    img: "http://www.naturephoto-cz.com/photos/others/thumb-himalayan-brown-bear-149564.jpg",
-    status: "Done",
-  };
+  const [data, setData] = useState({
+    text: "anderground",
+    geo: "52 52",
+    img: "ce53f92555a5662d7c46e45a266d565ec492fc02e0d41ec2c7448e870a0cb644.jpeg",
+    status: 1,
+    user_id: 1,
+    value: 1337,
+  });
 
-  return (
+  const magick = async () => {
+    try {
+      let response = await API.getInstance().get_picker({ id: marker });
+      if (response.status === 200) {
+        setData(response.data.data[0]);
+        console.log(response.data.data);
+      }
+    } catch (error) {}
+  };
+  React.useEffect(() => {
+    magick();
+  }, []);
+
+  const image_link = API.image_link(data.img);
+  console.log(data);
+  console.log(image_link);
+
+  return data ? (
     <View style={styles.view}>
-      <Image source={{ uri: data.img }} style={styles.image} />
+      <Image source={{ uri: image_link }} style={styles.image} />
       <Text variant="headlineSmall" style={styles.status}>
         Статус: {data.status}
       </Text>
@@ -26,6 +49,8 @@ export default function PickerInfo({ marker, navigation }: PickerInfoProps) {
         onPress={() => navigation.goBack()}
       />
     </View>
+  ) : (
+    <></>
   );
 }
 

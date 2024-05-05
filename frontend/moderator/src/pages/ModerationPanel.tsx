@@ -7,16 +7,17 @@ import {
   Modal,
   Alert,
 } from "react-bootstrap";
-import { MODERATION_DATA } from "../data_samples/moderation_panel";
 import { useAuth } from "./auth/AuthContext";
 import { Link } from "react-router-dom";
+import { cancelReport, confirmReport, fetchPickers } from "../api/api";
+import StarRating from "../components/Stars";
 
 interface Data {
   id: number;
-  comment: string;
+  text: string;
   status: number;
-  coordinates: string;
-  photo: string;
+  geo: string;
+  img: string;
 }
 
 function ModerationPanel() {
@@ -31,8 +32,12 @@ function ModerationPanel() {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
+  const [selectedValue, setSelectedValue] = useState<number>(0);
+  const [selectedComment, setSelectedComment] = useState<string | null>(null);
+
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
 
   const { isAuthenticated } = useAuth();
 
@@ -43,32 +48,42 @@ function ModerationPanel() {
     "Done",
   ];
 
+  const fetchData = async () => {
+    try {
+      const response = await fetchPickers();
+      if (response.status === 200) {
+        console.log(response);
+        setData(response.data.data);
+        console.log(data);
+      } else {
+        console.log("Failed to fetch data");
+      }
+    } catch (error) {
+      console.log(`Failed to fetch data: ${error}`);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       return;
     }
-
-    setTimeout(() => {
-      setData(MODERATION_DATA);
-      setLoading(false);
-    }, 2000);
-  }, []);
+    fetchData();
+    setLoading(false);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (data) {
-      // Apply filter if filterStatus is not null
       if (filterStatus !== null) {
         const filtered = data.filter((item) => item.status === filterStatus);
         setFilteredData(filtered);
       } else {
-        // If no filter is applied, use the original data
         setFilteredData(data);
       }
     }
   }, [data, filterStatus]);
 
   useEffect(() => {
-    setCurrentPage(1); // Reset current page when filtered data changes
+    setCurrentPage(1);
   }, [filteredData]);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
@@ -83,17 +98,11 @@ function ModerationPanel() {
       <div className="flex justify-center mt-8 flex-col items-center ">
         <h3>Кажется, самое время авторизоваться!</h3>
         <div>
-          <Link
-            // className="px-6 py-3 bg-gray-500 text-white rounded-lg text-lg font-semibold hover:bg-gray-600"
-            to={"/register"}
-          >
+          <Link to={"/register"}>
             <Button variant="link">Регистрация</Button>
           </Link>
           /
-          <Link
-            // className=" bg-gray-500 text-white rounded-lg text-lg font-semibold hover:bg-gray-600"
-            to={"/login"}
-          >
+          <Link to={"/login"}>
             <Button variant="link">Войти</Button>
           </Link>
         </div>
@@ -105,7 +114,7 @@ function ModerationPanel() {
     return (
       <div className=" flex justify-center items-center h-screen">
         <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
+          <span className="sr-only">Подгружаем...</span>
         </Spinner>
       </div>
     );
@@ -114,7 +123,7 @@ function ModerationPanel() {
   if (!filteredData || filteredData.length === 0) {
     return (
       <Alert variant="light">
-        <Alert.Heading>Отстувуют запросы на подтверждение</Alert.Heading>
+        <Alert.Heading>Отсутствуют запросы на подтверждение</Alert.Heading>
         <p>
           Кажется, а данный момент нет никаких запросов на подтвержение.
           Попробуйте зайти позже, они обязательно появятся!
@@ -123,46 +132,64 @@ function ModerationPanel() {
     );
   }
 
-  const handlePhotoButtonClick = (photo: string, id: number) => {
+  const handlePhotoButtonClick = (
+    photo: string,
+    id: number,
+    text: string,
+    status: number
+  ) => {
     setSelectedPhoto(photo);
     setSelectedRequestId(id);
+    setSelectedComment(text);
+    setSelectedStatus(status);
     setShowModal(true);
   };
 
   const handleApproveRequest = async () => {
+    console.log(selectedRequestId);
+    console.log(selectedValue);
     try {
-      // Send approve request
-      // await approveRequest(selectedRequestId!);
-      setSuccessMessage("Request approved successfully.");
-      // Remove the request from the table
-      // Here, you might have a function to update your data source (e.g., remove the item from the array)
+      const response = await confirmReport({
+        report_id: selectedRequestId!,
+        value: selectedValue,
+      });
+      if (response.status == 200) {
+        setData((prevData) =>
+          prevData!.filter((item) => item.id !== selectedRequestId)
+        );
+        setSuccessMessage("Запрос успешно подтвердён.");
+      }
     } catch (error) {
-      setErrorMessage("Failed to approve request.");
+      setErrorMessage("Не удалось подтвердить запрос :(");
     } finally {
       setShowModal(false);
     }
     setTimeout(() => {
       setSuccessMessage(null);
       setErrorMessage(null);
-    }, +process.env.REACT_APP_TOASTER_TIMEOUT!); // Hide message
+    }, +process.env.REACT_APP_TOASTER_TIMEOUT!);
   };
 
   const handleRejectRequest = async () => {
     try {
-      // Send reject request
-      // await rejectRequest(selectedRequestId!);
-      setSuccessMessage("Request rejected successfully.");
-      // Remove the request from the table
-      // Here, you might have a function to update your data source (e.g., remove the item from the array)
+      const response = await cancelReport({
+        report_id: selectedRequestId!,
+      });
+      if (response.status == 200) {
+        setData((prevData) =>
+          prevData!.filter((item) => item.id !== selectedRequestId)
+        );
+        setSuccessMessage("Запрос успешно отменён!.");
+      }
     } catch (error) {
-      setErrorMessage("Failed to reject request.");
+      setErrorMessage("Не удалось отменить запрос.....Извините....");
     } finally {
       setShowModal(false);
     }
     setTimeout(() => {
       setSuccessMessage(null);
       setErrorMessage(null);
-    }, 5000); // Hide message after 5 seconds
+    }, 5000);
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -232,34 +259,46 @@ function ModerationPanel() {
         <Table striped bordered hover>
           <thead className="  text-center">
             <tr>
-              <th>Status</th>
-              <th>Coordinates</th>
-              <th>Photo</th>
-              <th>Confirm</th>
+              <th>Статус</th>
+              <th>Координаты</th>
+              <th>Комментарий</th>
+              <th>Фото</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody className="  text-center">
             {currentItems.map((item) => (
               <tr key={item.id} className="">
-                <td>{statusOptions[item.status]}</td>
-                <td>{item.coordinates}</td>
-                <td>{item.comment}</td>
+                <td>
+                  {item.status >= 0 && item.status < statusOptions.length
+                    ? statusOptions[item.status]
+                    : "Успешно выполнили!"}
+                </td>
+                <td>{item.geo}</td>
+                <td>{item.text}</td>
                 <td className="align-middle">
                   <Button
                     variant="link"
-                    onClick={() => handlePhotoButtonClick(item.photo, item.id)}
+                    onClick={() =>
+                      handlePhotoButtonClick(
+                        item.img,
+                        item.id,
+                        item.text,
+                        item.status
+                      )
+                    }
                   >
                     View Photo
                   </Button>
                 </td>
                 <td className="align-middle">
                   {item.status === 0 || item.status === 2
-                    ? "Waiting for confirming"
+                    ? "Ждёт подтверждения"
                     : item.status === 1
-                    ? "Waiting for cleaning"
+                    ? "Ждёт уборки"
                     : item.status === 3
-                    ? ""
-                    : "Error"}
+                    ? "Дело сделано!"
+                    : "Дело сделано!"}
                 </td>
               </tr>
             ))}
@@ -281,23 +320,35 @@ function ModerationPanel() {
       </div>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Request Details</Modal.Title>
+          <Modal.Title>Детали запроса</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <img
-            src={`data:image/jpeg;base64,${selectedPhoto}`}
-            alt="Photo"
-            className="img-fluid"
-          />
+          <div className="flex flex-col gap-3 justify-center ">
+            <img
+              src={`data:image/jpeg;base64,${selectedPhoto}`}
+              alt="Photo"
+              className="img-fluid"
+            />
+            {selectedStatus == 0 || selectedStatus == 2 ? (
+              <StarRating totalStars={5} set={setSelectedValue}></StarRating>
+            ) : (
+              <></>
+            )}
+            <span>{selectedComment}</span>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleApproveRequest}>
-            Подтвердить запрос
-          </Button>
-          <Button variant="danger" onClick={handleRejectRequest}>
-            Отклонить запрос
-          </Button>
-        </Modal.Footer>
+        {selectedStatus == 0 || selectedStatus == 2 ? (
+          <Modal.Footer>
+            <Button variant="success" onClick={handleApproveRequest}>
+              Подтвердить запрос
+            </Button>
+            <Button variant="danger" onClick={handleRejectRequest}>
+              Отклонить запрос
+            </Button>
+          </Modal.Footer>
+        ) : (
+          <></>
+        )}
       </Modal>
     </>
   );

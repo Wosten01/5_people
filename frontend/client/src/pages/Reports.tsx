@@ -18,14 +18,16 @@ const statusOptions = [
 import { View, StyleSheet, ScrollView } from "react-native";
 import { Card, Title, Paragraph } from "react-native-paper";
 import { REPORTS_DATA } from "../data_samples/moderation_panel";
+import { useState } from "react";
+import { API } from "../api";
 
 const data = REPORTS_DATA;
 
 interface Data {
   id: number;
-  comment: string;
+  text: string;
   status: number;
-  coordinates: string;
+  geo: string;
   photo: string;
 }
 
@@ -45,14 +47,29 @@ const getStatusColor = (status: number) => {
 };
 
 export function Reports({ navigation }: ReportsProps) {
+  const [data, setData] = useState([]);
+
+  const magick = async () => {
+    try {
+    let response = await API.getInstance().user_pickers({ id: 16 });
+    if (response.status === 200) {
+      setData(response.data.data);
+    }} catch (error) {
+    }
+  };
+
+  React.useEffect(() => {
+    magick();
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       {data.map((item: Data) => (
         <Card key={item.id} style={[styles.card, getStatusColor(item.status)]}>
           <Card.Content>
             <Title>{`Status: ${statusOptions[item.status]}`}</Title>
-            <Paragraph>{`Comment: ${item.comment}`}</Paragraph>
-            <Paragraph>{`Coordinates: ${item.coordinates}`}</Paragraph>
+            <Paragraph>{`Comment: ${item.text}`}</Paragraph>
+            <Paragraph>{`Coordinates: ${item.geo}`}</Paragraph>
           </Card.Content>
         </Card>
       ))}
