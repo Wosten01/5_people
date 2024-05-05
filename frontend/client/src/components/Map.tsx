@@ -3,6 +3,7 @@ import { useState } from "react";
 import WebView from "react-native-webview";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface MapProps {
   setMarker: any;
@@ -32,7 +33,7 @@ export function Map({ markers, setMarker, navigation, coord }: MapProps) {
 function genHTML(coord: { lat: number; lng: number }, markers: any) {
   const markers_html = markers
     .map((p: any) => {
-      let [ x, y ] = p.geo.split(" ");
+      let [x, y] = p.geo.split(" ");
       return `var marker = L.marker([${x}, ${y}]).addTo(map);
      marker.getElement().onclick = () => {
       window.ReactNativeWebView.postMessage(${p.id});

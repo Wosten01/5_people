@@ -12,7 +12,11 @@ interface HomeScreenProps {
   setCoords: any;
 }
 
-export default function HomePage({coords, setCoords, navigation }: HomeScreenProps) {
+export default function HomePage({
+  coords,
+  setCoords,
+  navigation,
+}: HomeScreenProps) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home">

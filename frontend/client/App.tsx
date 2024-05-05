@@ -64,6 +64,11 @@ function App() {
               name="ReportPage"
               component={Reports}
             />
+            <Tab.Screen options={{ tabBarIcon: "account" }} name="ProfilePage">
+              {(props) => (
+                <HomePage {...props} coords={coords} setCoords={setCoords} />
+              )}
+            </Tab.Screen>
           </Tab.Navigator>
         </NavigationContainer>
       </PaperProvider>

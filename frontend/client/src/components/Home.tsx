@@ -4,6 +4,7 @@ import { Button, Text } from "react-native-paper";
 import ImagePickerComponent from "../components/ImagePicker";
 import { StyleSheet } from "react-native";
 import { API } from "../api";
+import CommentSection from "./CommentSection";
 
 interface HomeScreenProps {
   navigation: any;
@@ -41,16 +42,54 @@ export function HomeScreen({ coords, navigation }: HomeScreenProps) {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <ImagePickerComponent image={image} set={setImage} />
-      {/* <CommentSection set={setComment} /> */}
-
-      <Button onPress={() => navigation.navigate("MapPicker")}>
-        {JSON.stringify(coords)}
+      <CommentSection set={setComment} message={comment} />
+      <Button
+        mode="outlined"
+        style={styles.containerCoords}
+        onPress={() => navigation.navigate("MapPicker")}
+      >
+        <View style={styles.view}>
+          <Text
+            style={{
+              textAlign: "center",
+            }}
+          >
+            Текущее местоположение:
+          </Text>
+          <Text
+            style={{
+              textAlign: "center",
+            }}
+          >
+            {coords.lat}
+          </Text>
+          <Text
+            style={{
+              textAlign: "center",
+            }}
+          >
+            {coords.lng}
+          </Text>
+          <Text
+            style={{
+              textAlign: "center",
+            }}
+          >
+            (нажмите, чтобы сменить)
+          </Text>
+        </View>
       </Button>
 
       {image != undefined && comment != "" ? (
-        <Button mode="outlined" onPress={() => accept()} style={styles.button}>
-          Отправить
-        </Button>
+        <View style={{ padding: 20 }}>
+          <Button
+            mode="outlined"
+            onPress={() => accept()}
+            style={styles.button}
+          >
+            Отправить
+          </Button>
+        </View>
       ) : (
         <></>
       )}
@@ -98,6 +137,24 @@ export function HomeScreen({ coords, navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  view: {
+    gap: 5,
+    padding: 20,
+  },
+  containerCoords: {
+    // flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+  },
+
+  container: {
+    // flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    padding: 20,
+  },
   text: {
     color: "#006400",
     justifyContent: "center",
