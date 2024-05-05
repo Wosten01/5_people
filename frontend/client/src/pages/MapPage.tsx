@@ -1,4 +1,8 @@
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useFocusEffect,
+  useIsFocused,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Map } from "../components/Map";
 import PickerInfo from "../components/PickerInfo";
@@ -16,19 +20,25 @@ export default function MapPage({ coord }: MapPageProps) {
   const [marker, setMarker] = useState(null);
   const [data, setData] = useState([]);
 
-  const magick = async () => {
-    try {
-      let response = await API.getInstance().pickers();
-      if (response.status === 200) {
-        setData(response.data.data);
-        console.log(response.data.data)
-      }
-    } catch (error) {}
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      const magick = async () => {
+        try {
+          let response = await API.getInstance().pickers();
+          if (response.status === 200) {
+            setData(response.data.data);
+            console.log(response.data.data);
+          }
+        } catch (error) {}
+      };
 
-  React.useEffect(() => {
-    magick();
-  }, []);
+      magick();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
