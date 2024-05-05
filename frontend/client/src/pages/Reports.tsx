@@ -52,9 +52,10 @@ export function Reports({ navigation }: ReportsProps) {
 
   const magick = async () => {
     try {
-      let response = await API.getInstance().user_pickers({ id: 16 });
+      let response = await API.getInstance().user_pickers({ id: 1 });
       if (response.status === 200) {
         setData(response.data.data);
+        console.log(response.data.data);
       }
     } catch (error) {}
   };
