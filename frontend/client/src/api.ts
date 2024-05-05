@@ -57,4 +57,14 @@ export class API {
     // console.log(formData);
     let r = await instance().postForm(`/report/base64`, formData);
   }
+
+  public async user_confirm(data: { img: string; report_id: string }) {
+    const formData = new FormData();
+    const fileData = await FileSystem.readAsStringAsync(data.img, {
+      encoding: FileSystem?.EncodingType?.Base64,
+    });
+    formData.append("img", fileData);
+    formData.append("report_id", data.report_id);
+    await instance().postForm(`/user_confirm/base64`, formData);
+  }
 }

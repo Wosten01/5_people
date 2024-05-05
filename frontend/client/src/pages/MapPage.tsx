@@ -9,6 +9,7 @@ import PickerInfo from "../components/PickerInfo";
 import { useState } from "react";
 import React from "react";
 import { API } from "../api";
+import ClearReport from "../components/ClearReport";
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +50,9 @@ export default function MapPage({ coord }: MapPageProps) {
       </Stack.Screen>
       <Stack.Screen name="PickerInfo">
         {(props) => <PickerInfo {...props} marker={marker} />}
+      </Stack.Screen>
+      <Stack.Screen name="ClearReport">
+        {(props) => <ClearReport {...props} marker={marker} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

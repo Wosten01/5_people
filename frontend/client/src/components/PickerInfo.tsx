@@ -3,6 +3,7 @@ import { StyleSheet, View, Image } from "react-native";
 import { useState } from "react";
 import { API } from "../api";
 import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 interface PickerInfoProps {
   marker: string | null;
@@ -28,9 +29,12 @@ export default function PickerInfo({ marker, navigation }: PickerInfoProps) {
       }
     } catch (error) {}
   };
-  React.useEffect(() => {
-    magick();
-  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      magick();
+    }, [])
+  );
 
   const image_link = API.image_link(data.img);
   console.log(data);
@@ -43,6 +47,13 @@ export default function PickerInfo({ marker, navigation }: PickerInfoProps) {
         Статус: {data.status}
       </Text>
       <Text variant="bodyLarge">{data.text}</Text>
+      <Button
+        onPress={() => navigation.navigate("ClearReport")}
+        mode="elevated"
+        style={styles.button_iclr}
+      >
+        Я убрал
+      </Button>
       <FAB
         icon="arrow-left"
         style={styles.button}
@@ -73,5 +84,8 @@ const styles = StyleSheet.create({
   },
   status: {
     color: "red",
+  },
+  button_iclr: {
+    margin: 16,
   },
 });
