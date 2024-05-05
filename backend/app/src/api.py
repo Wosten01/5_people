@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse
 
-from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema, ModerConfirm, Area, ModerCancel
+from model import PostSchema, UserSchema, UserLoginSchema, UserMap, ReportSchema, ModerConfirm, Area, ModerCancel, UserReport
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import signJWT
 from connection_config import connection_params
@@ -18,7 +18,7 @@ import psycopg2.extras
 import hashlib
 import shutil
 import os
-import copy 
+import uuid
 import folium
 from math import log10
 
@@ -106,16 +106,58 @@ async def report(img: UploadFile = File(...), text = Form(...), geo = Form(...),
     upload_folder = "uploads"
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
-        
-    file = copy.deepcopy(img.file)
     
-    hashed_filename = hashlib.file_digest(file, "sha256").hexdigest()
     file_ext = os.path.splitext(img.filename)[1]
-    hash_img = f"{hashed_filename}{file_ext}"
-    file_path = os.path.join(upload_folder, hash_img)
+    
+    random_filename = str(uuid.uuid4())
+    file_path = os.path.join(upload_folder, random_filename)
     
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(img.file, buffer)
+    
+    with open(file_path, "rb") as file:
+        hashed_filename = hashlib.sha256(file.read()).hexdigest()
+        
+    
+    hash_img = f"{hashed_filename}{file_ext}"
+    
+    final_file_path = os.path.join(upload_folder, hash_img)
+    os.rename(file_path, final_file_path)
+    
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO requests "
+            "(text, geo, img, status, user_id, value) "
+            "VALUES (%s, %s, %s, %s, %s, %s)",
+            (text, geo, hash_img, 0, int(user_id), 0),
+        )
+        return {"message": "Report registered successfully"}, 201
+
+@app.post("/report/base64", tags=["user"])
+async def report2(img = Form(...), text = Form(...), geo = Form(...), user_id = Form(...)):
+    binary_data = base64.b64decode(img)
+    
+    upload_folder = "uploads"
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    
+    file_ext = ".jpeg"
+    
+    random_filename = str(uuid.uuid4())
+    file_path = os.path.join(upload_folder, random_filename)
+    
+    with open(file_path, "wb") as file:
+        file.write(binary_data)
+    
+    with open(file_path, "rb") as file:
+        hashed_filename = hashlib.sha256(file.read()).hexdigest()
+        
+    
+    hash_img = f"{hashed_filename}{file_ext}"
+    
+    final_file_path = os.path.join(upload_folder, hash_img)
+    os.rename(file_path, final_file_path)
     
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
@@ -214,7 +256,7 @@ async def close_report(report_id: int, cleaner_id: int):
     return content 
 
 @app.get("/pickers", tags=["user"])
-async def user_pickers():
+async def pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -222,16 +264,12 @@ async def user_pickers():
         )
         picker_list = []
         for row in cursor.fetchall():
-            with open("uploads/" + row[3], "rb") as file:
-                image_data = file.read()
-                image_base64 = base64.b64encode(image_data).decode("utf-8")
             report_data = {
                 "id": row[0],
                 "text": row[1],
                 "geo": row[2],
                 "status": row[4],
                 "value": row[5],
-                # "img" : image_base64
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
@@ -267,7 +305,7 @@ async def moder_pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id, value FROM requests"
+            "SELECT id, text, geo, img, status, user_id, value FROM requests WHERE status < 4"
         )
         picker_list = []
         for row in cursor.fetchall():

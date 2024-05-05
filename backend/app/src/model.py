@@ -102,4 +102,18 @@ class ModerCancel(BaseModel):
             }
         }
         
-        
+class UserReport(BaseModel):
+    img: str = Form(...),
+    text: str = Form(...), 
+    geo: str = Form(...), 
+    user_id: str = Form(...)
+    
+    class Config:
+        schema_extra = {
+            "example": {
+                "img": "a",
+                "text": "str",
+                "geo": "str", 
+                "user_id": "str",
+            }
+        }
