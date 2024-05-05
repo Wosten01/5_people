@@ -345,13 +345,14 @@ async def profile(id: int) -> dict:
         )
         for row in cursor.fetchall():
             achievements = {
-                "reports": log10(int(row[0]) + 0.01),
-                "completes": log10(int(row[1]) + 0.01),
+                "reports": row[0],
+                "completes": row[1],
             }  
     response = {"data": user_data, 
                 "achievements" : achievements}
     return response
     
+# на будущее
 @app.get("/map", tags=["user"],  response_class=HTMLResponse)
 async def get_map(data: Area):
     m = folium.Map(location=[data.latitude, data.longitude], zoom_start=5)
@@ -383,6 +384,7 @@ async def get_area(data: Area):
     
     response = {"area": area}
     return response
+#######
 
 @app.get("/top", tags=["user"])
 async def top():
@@ -463,4 +465,51 @@ async def confirm_report(report_id: int):
         )
     content = {"message": "Status changed"}
     
+    return content 
+
+@app.post("/user_confirm/base64", tags=["user"])
+async def user_confirm2(img = Form(...), report_id = Form(...)):
+    report_id = int(report_id)
+    binary_data = base64.b64decode(img)
+    
+    upload_folder = "uploads"
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    
+    file_ext = ".jpeg"
+    
+    random_filename = str(uuid.uuid4())
+    file_path = os.path.join(upload_folder, random_filename)
+    
+    with open(file_path, "wb") as file:
+        file.write(binary_data)
+    
+    with open(file_path, "rb") as file:
+        hashed_filename = hashlib.sha256(file.read()).hexdigest()
+        
+    
+    hash_img = f"{hashed_filename}{file_ext}"
+    
+    final_file_path = os.path.join(upload_folder, hash_img)
+    os.rename(file_path, final_file_path)
+    
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE requests SET status = %s AND img_clean = %s WHERE id = %s",
+            (2, img, report_id,)
+        )
+    content = {"message": "Status changed"}
+    
+    return content 
+
+@app.post("/decline_report", tags=["moder"])
+async def cancel_report(data: ModerCancel):
+    with psycopg2.connect(**connection_params) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE requests SET status = status - 1 WHERE id = %s",
+            (data.report_id,)
+        )
+    content = {"message": "Status changed"}
     return content 
