@@ -1,5 +1,7 @@
 
 uploads
+pgdata
+__pycache__
 
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
@@ -36,8 +38,3 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
-
-pgdata
-__pycache__
-uploads
-.env

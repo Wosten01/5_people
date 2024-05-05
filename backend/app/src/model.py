@@ -91,3 +91,15 @@ class Area(BaseModel):
                 "longitude": 1
             }
         }
+        
+class ModerCancel(BaseModel):
+    report_id: int = Form(...)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "report_id": 1,
+            }
+        }
+        
+        
