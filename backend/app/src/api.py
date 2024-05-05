@@ -20,7 +20,6 @@ import shutil
 import os
 import uuid
 import folium
-from math import log10
 
 origins = [
     "*"
@@ -394,11 +393,12 @@ async def top():
     top_users = []
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT fio, rank FROM users ORDER BY rank DESC LIMIT 10;")
+        cursor.execute("SELECT id, fio, rank FROM users ORDER BY rank DESC LIMIT 10;")
         for row in cursor.fetchall():
             user_data = {
-                "fio": row[0],
-                "rank": row[1]
+                "id": row[0],
+                "fio": row[1],
+                "rank": row[2]
             }
             top_users.append(user_data)
     
