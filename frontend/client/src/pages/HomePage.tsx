@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { HomeScreen } from "../components/Home";
 import { MapPicker } from "../components/MapPicker";

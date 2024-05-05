@@ -1,17 +1,15 @@
 import * as React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-
 import { DefaultTheme, PaperProvider } from "react-native-paper";
-
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
 import MapPage from "./src/pages/MapPage";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MapPicker } from "./src/components/MapPicker";
 import HomePage from "./src/pages/HomePage";
 import Reports from "./src/pages/Reports";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
+import ProfilePage from "./src/pages/ProfiePage";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
@@ -65,9 +63,7 @@ function App() {
               component={Reports}
             />
             <Tab.Screen options={{ tabBarIcon: "account" }} name="ProfilePage">
-              {(props) => (
-                <HomePage {...props} coords={coords} setCoords={setCoords} />
-              )}
+              {(props) => <ProfilePage {...props} />}
             </Tab.Screen>
           </Tab.Navigator>
         </NavigationContainer>

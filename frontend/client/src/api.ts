@@ -36,8 +36,12 @@ export class API {
     return await instance().get(`/report/${data.id}`);
   }
 
-  public static image_link(img: string) {
-    return `${url}/image?img=${img}`;
+  public async top() {
+    return await instance().get(`/pickers`);
+  }
+
+  public async profile(user_id: number) {
+    return await instance().get(`/profile/{${user_id}}`);
   }
 
   public async send_report(data: {
