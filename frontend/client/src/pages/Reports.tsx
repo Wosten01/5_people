@@ -27,9 +27,9 @@ const data = REPORTS_DATA;
 interface Data {
   id: number;
   text: string;
-  status: number;
   geo: string;
-  photo: string;
+  status: number;
+  value: number;
 }
 
 const getStatusColor = (status: number) => {
@@ -57,7 +57,9 @@ export function Reports({ navigation }: ReportsProps) {
         setData(response.data.data);
         console.log(response.data.data);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   useFocusEffect(

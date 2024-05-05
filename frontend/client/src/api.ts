@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
 
-const DEFAULT_TIMEOUT = 5000;
+const DEFAULT_TIMEOUT = 5000_00;
 const url: string = process.env.EXPO_PUBLIC_BACKEND_API!;
 
 const instance = (timeout = DEFAULT_TIMEOUT) => {
