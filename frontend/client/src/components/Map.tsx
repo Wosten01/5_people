@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import WebView from "react-native-webview";
 import { StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { FAB, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface MapProps {
@@ -10,27 +10,35 @@ interface MapProps {
   navigation: any;
   markers: any;
   coord: any;
+  magick: any;
 }
 
-export function Map({ markers, setMarker, navigation, coord }: MapProps) {
+export function Map({ markers, setMarker, navigation, coord, magick }: MapProps) {
   const [swtch, setSwitch] = useState(false);
 
   return (
-    <WebView
-      style={styles.view}
-      source={{
-        html: genHTML(coord, markers),
-      }}
-      onMessage={(e) => {
-        setMarker(e.nativeEvent.data);
-        navigation.navigate("PickerInfo");
-      }}
-      injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
-    />
+    <>
+      <WebView
+        style={styles.view}
+        source={{
+          html: genHTML(coord, markers, swtch),
+        }}
+        onMessage={(e) => {
+          setMarker(e.nativeEvent.data);
+          navigation.navigate("PickerInfo");
+        }}
+        injectedJavaScript="document.querySelector('.leaflet-attribution-flag').remove()"
+      />
+      <FAB
+        onPress={magick}
+        style={styles.button}
+        icon="refresh"
+      />
+    </>
   );
 }
 
-function genHTML(coord: { lat: number; lng: number }, markers: any) {
+function genHTML(coord: { lat: number; lng: number }, markers: any, swtch: boolean) {
   const markers_html = markers
     .map((p: any) => {
       let [x, y] = p.geo.split(" ");
@@ -92,5 +100,11 @@ function genHTML(coord: { lat: number; lng: number }, markers: any) {
 export const styles = StyleSheet.create({
   view: {
     flex: 1,
+  },
+  button: {
+    position: "absolute",
+    margin: 16,
+    top: 0,
+    right: 0,
   },
 });
