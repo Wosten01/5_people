@@ -2,12 +2,11 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const DEFAULT_TIMEOUT = +process.env.REACT_APP_DEFAULT_TIMEOUT!;
+const url: string = process.env.REACT_APP_BACKEND_API!;
 
 const instance = (timeout = DEFAULT_TIMEOUT) => {
   const requestId = uuidv4();
   console.log(`Create instance with request_id ${requestId}`);
-
-  const url: string = process.env.REACT_APP_BACKEND_API!;
 
   return axios.create({
     baseURL: url,
@@ -42,4 +41,8 @@ export const confirmReport = async (data: {
 
 export const cancelReport = async (data: { report_id: number }) => {
   return await instance().post(`/cancel_report`, data);
+};
+
+export const image_link = (img: string) => {
+  return `${url}/image?img=${img}`;
 };

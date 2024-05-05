@@ -9,7 +9,12 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "./auth/AuthContext";
 import { Link } from "react-router-dom";
-import { cancelReport, confirmReport, fetchPickers } from "../api/api";
+import {
+  cancelReport,
+  confirmReport,
+  fetchPickers,
+  image_link,
+} from "../api/api";
 import StarRating from "../components/Stars";
 
 interface Data {
@@ -18,6 +23,7 @@ interface Data {
   status: number;
   geo: string;
   img: string;
+  img_clean: string;
 }
 
 function ModerationPanel() {
@@ -29,6 +35,7 @@ function ModerationPanel() {
   const [filteredData, setFilteredData] = useState<Data[] | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
+  const [selectedPhotoClr, setSelectedPhotoClr] = useState<string>("");
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(
     null
   );
@@ -134,11 +141,13 @@ function ModerationPanel() {
 
   const handlePhotoButtonClick = (
     photo: string,
+    photo_clr: string,
     id: number,
     text: string,
     status: number
   ) => {
     setSelectedPhoto(photo);
+    setSelectedPhotoClr(photo_clr);
     setSelectedRequestId(id);
     setSelectedComment(text);
     setSelectedStatus(status);
@@ -282,6 +291,7 @@ function ModerationPanel() {
                     onClick={() =>
                       handlePhotoButtonClick(
                         item.img,
+                        item.img_clean,
                         item.id,
                         item.text,
                         item.status
@@ -325,7 +335,9 @@ function ModerationPanel() {
         <Modal.Body>
           <div className="flex flex-col gap-3 justify-center ">
             <img
-              src={`data:image/jpeg;base64,${selectedPhoto}`}
+              src={image_link(
+                selectedStatus === 0 ? selectedPhoto : selectedPhotoClr
+              )}
               alt="Photo"
               className="img-fluid"
             />
