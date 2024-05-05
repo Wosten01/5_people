@@ -12,6 +12,7 @@ import HomePage from "./src/pages/HomePage";
 import Reports from "./src/pages/Reports";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
+import UserProfile from "./src/components/Profile";
 
 if (process.env.NODE_ENV === "development" && Platform.OS === "web") {
   require("@expo/metro-runtime");
@@ -65,9 +66,7 @@ function App() {
               component={Reports}
             />
             <Tab.Screen options={{ tabBarIcon: "account" }} name="ProfilePage">
-              {(props) => (
-                <HomePage {...props} coords={coords} setCoords={setCoords} />
-              )}
+              {(props) => <UserProfile {...props} />}
             </Tab.Screen>
           </Tab.Navigator>
         </NavigationContainer>
