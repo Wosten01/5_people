@@ -29,13 +29,18 @@ export function HomeScreen({ coords, navigation }: HomeScreenProps) {
 
   const sendReport = () => {
     console.log(image);
-    console.log(comment);
-    API.getInstance().send_report({
-      img: image!,
-      text: comment,
-      geo: `${coords.lat} ${coords.lng}`,
-      user_id: "1",
-    });
+    // console.log(comment);
+    API.getInstance()
+      .send_report({
+        img: image!,
+        text: comment,
+        geo: `${coords.lat} ${coords.lng}`,
+        user_id: "1",
+      })
+      .then(() => {
+        console.log("Amogus");
+      })
+      .catch((e) => console.log(e.request));
     return;
   };
 

@@ -47,11 +47,14 @@ export class API {
     user_id: string;
   }) {
     const formData = new FormData();
-    formData.append("img", await FileSystem.readAsStringAsync(data.img));
+    const fileData = await FileSystem.readAsStringAsync(data.img, {
+      encoding: FileSystem?.EncodingType?.Base64,
+    });
+    formData.append("img", fileData);
     formData.append("text", data.text);
     formData.append("geo", data.geo);
     formData.append("user_id", data.user_id);
-    console.log(formData);
-    await instance().post(`/report`, formData);
+    // console.log(formData);
+    let r = await instance().postForm(`/report/base64`, formData);
   }
 }
