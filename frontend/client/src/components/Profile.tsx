@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { API } from "../api";
 
 interface UserData {
   fio: string;
@@ -28,24 +29,22 @@ const UserProfile = ({ navigation }: Props) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [achievements, setAchievements] = useState<Achievements | null>(null);
 
+  const fetch = async () => {
+    try {
+      let response = await API.getInstance().profile(
+        +process.env.EXPO_PUBLIC_USER_ID!
+      );
+      if (response.status === 200) {
+        alert(response.data.data);
+        setUserData(response.data.data);
+        setAchievements(response.data.achievements);
+      }
+    } catch (error) {}
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    // Здесь можно использовать какой-то механизм для загрузки данных с сервера
-    // Например, fetch или axios
-    // Пока просто имитируем загрузку данных с помощью setTimeout
-    setTimeout(() => {
-      const fakeUserData = {
-        fio: "Артур Артурович Фрутнинзя",
-        email: "example@example.com",
-        rank: 5000,
-      };
-      const fakeAchievements = {
-        reports: 10,
-        completes: 10,
-      };
-      setUserData(fakeUserData);
-      setIsLoading(false);
-      setAchievements(fakeAchievements);
-    }, 300);
+    fetch();
   }, []);
 
   return (
