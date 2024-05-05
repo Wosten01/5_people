@@ -20,6 +20,7 @@ import { Card, Title, Paragraph } from "react-native-paper";
 import { REPORTS_DATA } from "../data_samples/moderation_panel";
 import { useState } from "react";
 import { API } from "../api";
+import { useFocusEffect } from "@react-navigation/native";
 
 const data = REPORTS_DATA;
 
@@ -51,16 +52,18 @@ export function Reports({ navigation }: ReportsProps) {
 
   const magick = async () => {
     try {
-    let response = await API.getInstance().user_pickers({ id: 16 });
-    if (response.status === 200) {
-      setData(response.data.data);
-    }} catch (error) {
-    }
+      let response = await API.getInstance().user_pickers({ id: 16 });
+      if (response.status === 200) {
+        setData(response.data.data);
+      }
+    } catch (error) {}
   };
 
-  React.useEffect(() => {
-    magick();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      magick();
+    }, [])
+  );
 
   return (
     <ScrollView style={styles.container}>
