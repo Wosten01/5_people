@@ -175,7 +175,7 @@ async def get_single_report(id: int) -> dict:
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT text, geo, img, status, user_id, value FROM requests WHERE id = %s",
+            "SELECT text, geo, img, status, user_id, value, img_clean FROM requests WHERE id = %s",
             (str(id), )
         )
         picker_list = []
@@ -186,7 +186,8 @@ async def get_single_report(id: int) -> dict:
                 "img": row[2],
                 "status": row[3],
                 "user_id": row[4],
-                "value": row[5]
+                "value": row[5],
+                "img_clean": row[6]
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
@@ -305,21 +306,23 @@ async def moder_pickers():
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, text, geo, img, status, user_id, value FROM requests WHERE status < 4"
+            "SELECT id, text, geo, img, status, user_id, value, img_clean FROM requests WHERE status < 4"
         )
         picker_list = []
         for row in cursor.fetchall():
-            with open("uploads/" + row[3], "rb") as file:
-                image_data = file.read()
-                image_base64 = base64.b64encode(image_data).decode("utf-8")
+            # with open("uploads/" + row[3], "rb") as file:
+            #     image_data = file.read()
+            #     image_base64 = base64.b64encode(image_data).decode("utf-8")
             report_data = {
                 "id": row[0],
                 "text": row[1],
                 "geo": row[2],
-                "img": image_base64,
+                # "img": image_base64,
+                "img": row[3],
                 "status": row[4],
                 "user_id": row[5],
-                "value": row[6]
+                "value": row[6],
+                "img_clean": row[7]
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
@@ -454,6 +457,8 @@ async def get_image(img: str):
 
     return Response(content=image_data, media_type="image/jpeg")
 
+
+
 @app.post("/user_confirm", tags=["user"])
 async def confirm_report(report_id: int):
     
@@ -496,8 +501,8 @@ async def user_confirm2(img = Form(...), report_id = Form(...)):
     with psycopg2.connect(**connection_params) as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE requests SET status = %s AND img_clean = %s WHERE id = %s",
-            (2, img, report_id,)
+            "UPDATE requests SET status = %s, img_clean = %s WHERE id = %s",
+            (2, hash_img, report_id,)
         )
     content = {"message": "Status changed"}
     
