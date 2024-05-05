@@ -285,16 +285,12 @@ async def user_pickers(id: int):
         )
         picker_list = []
         for row in cursor.fetchall():
-            with open("uploads/" + row[3], "rb") as file:
-                image_data = file.read()
-                image_base64 = base64.b64encode(image_data).decode("utf-8")
             report_data = {
                 "id": row[0],
                 "text": row[1],
                 "geo": row[2],
                 "status": row[4],
-                "value": row[5],
-                "img" : image_base64
+                "value": row[5]
             }
             picker_list.append(report_data)    
     response = {"data": picker_list}
