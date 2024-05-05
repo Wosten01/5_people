@@ -72,3 +72,7 @@ export class API {
     await instance().postForm(`/user_confirm/base64`, formData);
   }
 }
+
+export const image_link = (img: string) => {
+  return `${url}/image?img=${img}`;
+};
