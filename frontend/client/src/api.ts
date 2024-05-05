@@ -71,8 +71,8 @@ export class API {
     formData.append("report_id", data.report_id);
     await instance().postForm(`/user_confirm/base64`, formData);
   }
-}
 
-export const image_link = (img: string) => {
-  return `${url}/image?img=${img}`;
-};
+  public static image_link = (img: string) => {
+    return `${url}/image?img=${img}`;
+  };
+}
